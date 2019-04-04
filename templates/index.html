@@ -1,0 +1,26 @@
+<!DOCTYPE html >
+<html xmlns="http://www.w3.org/1999/xhtml">
+{%load static%}
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=emulateIE7" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>novel_search 搜索引擎</title>
+<link rel="stylesheet" href="{% static 'css/index.css' %}">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container">
+    <div class="logo">
+        <img class="img-responsive center-block" src="{% static 'img/novel_search_logo.png'%}">
+    </div>
+    <form action="/search" method="get" class="home_search center-block">
+        {% csrf_token %}
+        <div class="search center-block">
+            <input id="novel_name" type="text" name="wd" class="form-control center-block" placeholder="请输入小说名" required>
+            <input class="btn btn-default" type="submit" value="Novel Search">
+        </div>
+    </form>
+    
+</div>
+</body>
