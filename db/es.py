@@ -1,11 +1,11 @@
 #coding:utf-8
-import os
 import time
 from os import walk
 from datetime import datetime
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
-
+import sys
+sys.path.append('../')
 from utils.tools import singleton
 
 @singleton
@@ -60,14 +60,12 @@ class ElasticObj(object):
                             "index": "not_analyzed"
                         },
                         "novel_abstract": {
-                            "type": "string",
-                            "index": "not_analyzed"
+                            "type": "text",
+                            "index": True,
+                            "analyzer": "ik_max_word", 
+                            "search_analyzer": "ik_max_word" #设置中文分词插件
                         },
                         "novel_lastest_update": {
-                            "type": "string",
-                            "index": "not_analyzed"
-                        },
-                        "novel_nums": {
                             "type": "string",
                             "index": "not_analyzed"
                         },
@@ -120,18 +118,28 @@ class ElasticObj(object):
     def Get_Data_By_Body(self,word=''):
         # doc = {'query': {'match_all': {}}}
         doc = {
+            "from": 0,
+            "size": 50,
             "query": {
-                "match": {
-                    "novel_title": f"{word}"
+                "multi_match": { #multi_match 匹配分词后的所有关键字
+                    "query": f"{word}",
+                    "fields": ["novel_title","novel_abstract"],   
+                }
+            },
+            "highlight": {
+                "pre_tags": ['<span style="color:#bf2c24">'],         # 高亮开始标签
+                "post_tags": ['</span>'],                       # 高亮结束标签
+                "fields": {                                     # 高亮设置
+                    "novel_title": {},                                # 高亮字段
+                    "novel_abstract": {}                           # 高亮字段
                 }
             }
         }
+        
         _searched = self.es.search(index=self.index_name, doc_type=self.index_type, body=doc)
         return _searched
 
-        # for hit in _searched['hits']['hits']:
-        #     # print hit['_source']
-        #     print(hit['_source'])
+        # print(_searched)
 
 if __name__ == '__main__':
     obj =ElasticObj(ip ="47.106.120.31")
@@ -145,4 +153,4 @@ if __name__ == '__main__':
     # obj.Index_Data_FromCSV(csvfile)
     # obj.GetData(es)
     # obj.Delete_all()
-    obj.Get_Data_By_Body('流浪地球')
+    obj.Delete_all()

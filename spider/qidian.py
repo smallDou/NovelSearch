@@ -8,7 +8,8 @@ import sys
 from ruia import Spider, Item, TextField, AttrField
 from ruia_ua import middleware as ua_middleware
 import sys
-sys.path.append('..')
+sys.path.append("..")
+sys.path.append('e:\\graduation\\NovelSearch')
 from db.es import ElasticObj
 
 class QidianNovelsItem(Item):
@@ -21,7 +22,6 @@ class QidianNovelsItem(Item):
     novel_cover = AttrField(css_select='div.book-img-box img', attr='src')
     novel_abstract = TextField(css_select='div.book-mid-info p.intro')
     novel_lastest_update = TextField(css_select='div.book-mid-info > p.update')
-    novel_nums = TextField(css_select='div.book-right-info > div > p:nth-child(1) > span')
 
     async def clean_novel_url(self, novel_url):
         return 'https:' + novel_url
@@ -58,16 +58,15 @@ class QidianNovelsSpider(Spider):
                 'novel_cover': item.novel_cover,
                 'novel_abstract': item.novel_abstract,
                 'novel_lastest_update': item.novel_lastest_update,
-                'novel_nums': item.novel_nums,
                 'source': 'qidian',
             }
-            self.logger.info(res_dic)
-            #self.save(res_dic)
+            #self.logger.info(res_dic)
+            await self.save(res_dic)
 
-    def save(self, res_dic):
+    async def save(self, res_dic):
         # 存进es
         try:
-            self.es.Index_Data(res_dic)
+            await self.es.Index_Data(res_dic)
             #self.logger.info("插入成功")
             return True
         except Exception as e:
@@ -76,5 +75,6 @@ class QidianNovelsSpider(Spider):
 
 if __name__ == '__main__':
     keyword = sys.argv[1]
+    #keyword = '剑来'
     QidianNovelsSpider.start_urls = [f'https://www.qidian.com/search?kw={keyword}']
     QidianNovelsSpider.start(middleware=[ua_middleware], close_event_loop=False)

@@ -6,6 +6,7 @@ import subprocess
 class NovelsSpider():
     def __init__(self,wd=''):
         self.wd = wd
+        self.base_url = os.path.dirname(os.path.abspath(__file__))
 
     def start(self):
         QidianNovelsSpider.start_urls = [f'https://www.qidian.com/search?kw={self.wd}']
@@ -13,7 +14,7 @@ class NovelsSpider():
 
     def start_by_tem(self):
         servers = [
-        ["python3", "/root/project/graduations/NovelSearch/spider/qidian.py", f"{self.wd}"],
+        ["python3", os.path.join(self.base_url+'/qidian.py'), f"{self.wd}"],
         ]
         procs = []
         for server in servers:
@@ -27,3 +28,4 @@ class NovelsSpider():
 if __name__ == '__main__':
     s = NovelsSpider('剑来')
     s.start()
+    # print(s.base_url)
